@@ -1,0 +1,105 @@
+---
+title: "Tidy Tuesday Jan 14"
+author: "Alice Tivarovsky"
+date: "2025-01-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## 1. Introduction
+
+This dataset explores posit::conf talks in 2023 and 2024. Some questions to think about: 
+- Which speakers gave talks both years? 
+- Are there keywords that appear in track titles in both 2023 and 2024? 
+- What is the average sentiment of descriptions in each track? 
+
+Be careful to de-duplicate the data when needed. Talks are indexed by speaker and some talks have more than one speaker. 
+
+Research question. 
+
+### Load Libraries
+
+```{r libs}
+library(tidyverse)
+library(tidytuesdayR)
+library(tidytext)
+
+```
+
+### Load Data
+
+Data found on Github [here.](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-01-14/readme.md) 
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2025-01-14')
+
+conf2023 <- 
+  tuesdata$conf2023 |> 
+  mutate(year = "2023")
+
+conf2024 <- 
+  tuesdata$conf2024 |> 
+  mutate(year = "2024")
+
+```
+
+### 2. Data Exploration
+
+We will identify the most common words in both years. We will use the `tidytext` [package.](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html) 
+
+#### 2023
+
+```{r}
+conf2023_talks <- 
+  conf2023 |>
+  select(session_title) |>
+  unique()
+
+# tidy table to one word per row
+tidy_conf2023_talks <- 
+  conf2023_talks |>
+  unnest_tokens(output = word, input = session_title)
+
+# remove stop words
+tidy_conf2023_talks <-
+  tidy_conf2023_talks |>
+  anti_join(get_stopwords(), join_by(word))
+
+# group words and count
+tidy_conf2023_talks |>
+  group_by(word) |> 
+  summarise(n = n()) |>
+  arrange(desc(n))
+
+```
+ 
+#### 2024
+
+```{r}
+conf2024_talks <- 
+  conf2024 |>
+  select(talk_title) |>
+  unique()
+
+# tidy table to one word per row
+tidy_conf2024_talks <- 
+  conf2024_talks |>
+  unnest_tokens(output = word, input = talk_title)
+
+# remove stop words
+tidy_conf2024_talks <-
+  tidy_conf2024_talks |>
+  anti_join(get_stopwords(), join_by(word))
+
+# group words and count
+tidy_conf2024_talks |>
+  group_by(word) |> 
+  summarise(n = n()) |>
+  arrange(desc(n))
+
+```
+
