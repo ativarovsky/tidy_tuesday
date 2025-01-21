@@ -47,11 +47,11 @@ conf2024 <-
 
 ```
 
-### 2. Data Exploration
+## 2. Data Exploration
 
 We will identify the most common words in both years. We will use the `tidytext` [package.](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html) 
 
-#### 2023
+### 2023
 
 ```{r}
 conf2023_talks <- 
@@ -70,14 +70,16 @@ tidy_conf2023_talks <-
   anti_join(get_stopwords(), join_by(word))
 
 # group words and count
-tidy_conf2023_talks |>
+tidy_conf2023_word_count <- 
+  tidy_conf2023_talks |>
   group_by(word) |> 
   summarise(n = n()) |>
-  arrange(desc(n))
+  arrange(desc(n)) |> 
+  mutate(year = "2023")
 
 ```
  
-#### 2024
+### 2024
 
 ```{r}
 conf2024_talks <- 
@@ -93,13 +95,36 @@ tidy_conf2024_talks <-
 # remove stop words
 tidy_conf2024_talks <-
   tidy_conf2024_talks |>
-  anti_join(get_stopwords(), join_by(word))
+  anti_join(get_stopwords(), join_by(word)) 
 
 # group words and count
-tidy_conf2024_talks |>
+tidy_conf2024_word_count <- 
+  tidy_conf2024_talks |>
   group_by(word) |> 
   summarise(n = n()) |>
-  arrange(desc(n))
+  arrange(desc(n)) |> 
+  mutate(year = "2024")
+
+tidy_conf_word_count <- 
+  rbind(tidy_conf2023_word_count, tidy_conf2024_word_count) 
+  
+head(tidy_conf_word_count)
+
+```
+
+
+### 3. Most Common Words
+
+```{r}
+tidy_conf_word_count |> 
+  filter(n >= 5) |> 
+  mutate(word = reorder(word, n)) |> 
+  ggplot(aes(n, word, fill = year)) + 
+  geom_col() + 
+  facet_wrap(vars(year), scales = "free_y") +
+  labs(x = "Count", 
+       y = "Word") + 
+  theme_bw()
 
 ```
 
