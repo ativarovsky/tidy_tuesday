@@ -53,8 +53,9 @@ conf2024 <-
 
 We will identify the most common words in both years. We will use the `tidytext` [package.](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html) 
 
-### 2023
+### Clean and Wrangle
 
+2023 data
 ```{r}
 conf2023_talks <- 
   conf2023 |>
@@ -81,7 +82,7 @@ tidy_conf2023_word_count <-
 
 ```
  
-### 2024
+2024 data
 
 ```{r}
 conf2024_talks <- 
