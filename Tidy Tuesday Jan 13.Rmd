@@ -21,12 +21,15 @@ Be careful to de-duplicate the data when needed. Talks are indexed by speaker an
 
 Research question. 
 
-### Load Libraries
+## 2. Analysis
+
+### Load Libraries and Themes
 
 ```{r libs}
 library(tidyverse)
 library(tidytuesdayR)
 library(tidytext)
+library(paletteer)
 
 ```
 
@@ -47,7 +50,6 @@ conf2024 <-
 
 ```
 
-## 2. Data Exploration
 
 We will identify the most common words in both years. We will use the `tidytext` [package.](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html) 
 
@@ -112,8 +114,7 @@ head(tidy_conf_word_count)
 
 ```
 
-
-### 3. Most Common Words
+## 3. Final Plot
 
 ```{r}
 tidy_conf_word_count |> 
@@ -122,9 +123,19 @@ tidy_conf_word_count |>
   ggplot(aes(n, word, fill = year)) + 
   geom_col() + 
   facet_wrap(vars(year), scales = "free_y") +
-  labs(x = "Count", 
-       y = "Word") + 
-  theme_bw()
+  scale_fill_paletteer_d("nbapalettes::supersonics_holiday") +
+  labs(title = "Most Common Words in posit::conf Talks",
+       subtitle = "2023 vs 2024",
+       x = "Count", 
+       y = "Word") +
+  theme_minimal() + 
+  theme(panel.background = element_rect(fill = "lightgray",
+                                colour = "lightgray",
+                                size = 0.5, linetype = "solid"), 
+        plot.background = element_rect(fill = "lightgray")
+  ) 
 
 ```
 
+
+## 4. Conclusion
