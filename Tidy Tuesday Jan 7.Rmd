@@ -1,0 +1,47 @@
+---
+title: "Tidy Tuesday Jan 7"
+author: "Alice Tivarovsky"
+date: "2025-01-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## 1. setup
+
+### Load Libraries
+
+```{r libs}
+pacman::p_load(
+  tidyverse, 
+  tidytuesday
+)
+
+```
+
+### Load Data
+
+Data found on Github [here.](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-01-14/readme.md) 
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2025-01-14')
+
+conf2023 <- tuesdata$conf2023
+conf2024 <- tuesdata$conf2024
+
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
