@@ -1,0 +1,30 @@
+---
+title: "Tidy Tuesday March 11"
+author: "Alice Tivarovsky"
+date: "2025-03-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### Load Libraries
+
+```{r libs}
+library(tidyverse)
+library(tidytuesdayR)
+
+```
+
+
+### Load Data
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2025-03-11')
+
+pixar_films <- tuesdata$pixar_films
+public_response <- tuesdata$public_response
+
+```
