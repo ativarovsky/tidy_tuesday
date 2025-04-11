@@ -54,6 +54,7 @@ water_insecurity_2022 |>
 
 Count map in leaflet
 ```{r}
+<<<<<<< HEAD
 basemap <- 
   leaflet()|> 
   addProviderTiles(
@@ -94,7 +95,16 @@ basemap <-
 
 #  addProviderTiles(provider = 'Stadia.StamenTonerLite') #uses OpenStreetMap as the provider
 
+```
+
 basemap
+
+```{r}
+map <- 
+  leaflet()|> 
+  addProviderTiles(provider = 'Stadia.StamenTonerLite') #uses OpenStreetMap as the provider
+
+
 
 ```
 
@@ -104,4 +114,5 @@ basemap |>
   addPolygons(data = water_insecurity_2022$geometry)
 
 ```
+
 
