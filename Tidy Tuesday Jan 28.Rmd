@@ -1,0 +1,107 @@
+---
+title: "Tidy Tuesday Jan 28"
+author: "Alice Tivarovsky"
+date: "2025-01-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## 1. Introduction
+
+
+### Load Libraries
+
+Leaflet package tutorial [here](https://library.virginia.edu/data/articles/data-scientist-as-cartographer-an-introduction-to-making-interactive-maps-in-r-with-leaflet)
+
+```{r libs}
+library(tidyverse)
+library(tidytuesdayR)
+library(tidytext)
+library(leaflet)
+
+```
+
+
+### Load Data
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2025-01-28')
+
+water_insecurity_2022 <- tuesdata$water_insecurity_2022
+water_insecurity_2023 <- tuesdata$water_insecurity_2023
+
+```
+
+
+### 2. Data Exploration
+
+```{r}
+head(water_insecurity_2022)
+head(water_insecurity_2023)
+
+water_insecurity_2022 |> 
+  dplyr::mutate(
+    geometry = purrr::map(geometry, \(geo) {
+      eval(parse(text = geo))
+    } )
+  )
+
+```
+
+Count map in leaflet
+```{r}
+basemap <- 
+  leaflet()|> 
+  addProviderTiles(
+    "OpenStreetMap",
+    # give the layer a name
+    group = "OpenStreetMap"
+  ) |> 
+  addProviderTiles(
+    "Stamen.Terrain",
+    group = "Stamen.Terrain"
+  ) |> 
+  addProviderTiles(
+    "Esri.WorldStreetMap",
+    group = "Esri.WorldStreetMap"
+  ) |> 
+  addProviderTiles(
+    "Wikimedia",
+    group = "Wikimedia"
+  ) |> 
+  addProviderTiles(
+    "CartoDB.Positron",
+    group = "CartoDB.Positron"
+  ) |> 
+  addProviderTiles(
+    "Esri.WorldImagery",
+    group = "Esri.WorldImagery"
+  ) |> 
+  addLayersControl(
+    baseGroups = c(
+      "OpenStreetMap", "Stamen.Toner",
+      "Stamen.Terrain", "Esri.WorldStreetMap",
+      "Wikimedia", "CartoDB.Positron", "Esri.WorldImagery"
+    ),
+    # position it on the topleft
+    position = "topleft"
+  ) |> 
+  setView(lng = -95, lat = 40, zoom = 4)
+
+#  addProviderTiles(provider = 'Stadia.StamenTonerLite') #uses OpenStreetMap as the provider
+
+basemap
+
+```
+
+
+```{r}
+basemap |> 
+  addPolygons(data = water_insecurity_2022$geometry)
+
+```
+
