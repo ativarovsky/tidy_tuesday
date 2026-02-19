@@ -10,16 +10,17 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-### Load Libraries
+# Load Libraries
 
 ```{r libs}
 library(tidyverse)
 library(tidytuesdayR)
+library(janitor)
 
 ```
 
 
-### Load Data
+# Load Data
 
 ```{r}
 tuesdata <- tidytuesdayR::tt_load('2026-02-17')
@@ -27,4 +28,20 @@ tuesdata <- tidytuesdayR::tt_load('2026-02-17')
 dataset <- tuesdata$dataset
 
 ```
+
+# Data Wrangling
+
+```{r}
+plot_dat <- 
+  dataset |> 
+  filter(toupper(measure) %in% c("TOTAL SHEEP", "TOTAL CATTLE", "TOTAL PIGS", "TOTAL GOATS", "TOTAL LAMBS", "TOTAL AREA OF FARMS")) |> 
+  select(year_ended_june, measure, value) |> 
+  pivot_wider(names_from = "measure", values_from = "value") |> 
+  janitor::clean_names() |> 
+  mutate(across(c(total_sheep, total_cattle, total_pigs, total_goats), ~ if_else(is.na(.x), 0, .x))) |> 
+  filter(!is.na(total_area_of_farms)) |> 
+  mutate(sheep_density = total_sheep / total_area_of_farms, cattle_density = total_cattle / total_area_of_farms, pig_density = total_pigs/total_area_of_farms, goat_density = total_goats/total_area_of_farms)
+
+```
+
 
