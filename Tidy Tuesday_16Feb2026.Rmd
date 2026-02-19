@@ -32,7 +32,7 @@ dataset <- tuesdata$dataset
 # Data Wrangling
 
 ```{r}
-plot_dat <- 
+plot_data <- 
   dataset |> 
   filter(toupper(measure) %in% c("TOTAL SHEEP", "TOTAL CATTLE", "TOTAL PIGS", "TOTAL GOATS", "TOTAL LAMBS", "TOTAL AREA OF FARMS")) |> 
   select(year_ended_june, measure, value) |> 
@@ -40,8 +40,18 @@ plot_dat <-
   janitor::clean_names() |> 
   mutate(across(c(total_sheep, total_cattle, total_pigs, total_goats), ~ if_else(is.na(.x), 0, .x))) |> 
   filter(!is.na(total_area_of_farms)) |> 
-  mutate(sheep_density = total_sheep / total_area_of_farms, cattle_density = total_cattle / total_area_of_farms, pig_density = total_pigs/total_area_of_farms, goat_density = total_goats/total_area_of_farms)
+  mutate(sheep_density = total_sheep / total_area_of_farms, cattle_density = total_cattle / total_area_of_farms, pig_density = total_pigs/total_area_of_farms, goat_density = total_goats/total_area_of_farms) |> 
+  select(c(year_ended_june, sheep_density, cattle_density, pig_density, goat_density)) |> 
+  pivot_longer(sheep_density:goat_density, names_to = "measure")
 
 ```
 
+
+# Plot
+
+```{r}
+ggplot(data = plot_data, aes(x = year_ended_june, y = value, color = measure)) + 
+  geom_line()
+
+```
 
