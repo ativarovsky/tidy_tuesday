@@ -16,6 +16,16 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(tidytuesdayR)
 library(janitor)
+library(sysfonts)
+library(showtext)
+
+```
+
+# Colors & Fonts
+
+```{r}
+font_add_google("Roboto", family = "roboto_family")
+showtext_auto()
 
 ```
 
@@ -42,7 +52,12 @@ plot_data <-
   filter(!is.na(total_area_of_farms)) |> 
   mutate(sheep_density = total_sheep / total_area_of_farms, cattle_density = total_cattle / total_area_of_farms, pig_density = total_pigs/total_area_of_farms, goat_density = total_goats/total_area_of_farms) |> 
   select(c(year_ended_june, sheep_density, cattle_density, pig_density, goat_density)) |> 
-  pivot_longer(sheep_density:goat_density, names_to = "measure")
+  pivot_longer(sheep_density:goat_density, names_to = "measure") |> 
+  mutate(measure = case_when(measure == "sheep_density" ~ "Sheep Density", 
+                             measure == "pig_density" ~ "Pig Density", 
+                             measure == "cattle_density" ~ "Cattle Density", 
+                             measure == "goat_density" ~ "Goat Density",
+                             .default = "NA"))
 
 ```
 
@@ -51,7 +66,15 @@ plot_data <-
 
 ```{r}
 ggplot(data = plot_data, aes(x = year_ended_june, y = value, color = measure)) + 
-  geom_line()
+  geom_line() +
+  scale_color_brewer(palette = "Dark2") +
+  theme_bw() +
+  labs(title = "NZ Sheep Population in Decline, Still Vastly Outweighs Other Livestock",
+       subtitle = "Density of Sheep and Other Livestock (Animals per Hectare)", 
+       y = "", 
+       x = "Year") +
+  theme(text = element_text(family = "roboto_family"), 
+        legend.title = element_blank())
 
 ```
 
