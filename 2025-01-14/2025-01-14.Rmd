@@ -1,5 +1,5 @@
 ---
-title: "Tidy Tuesday Jan 14"
+title: "Tidy Tuesday, 2025-01-14"
 author: "Alice Tivarovsky"
 date: "2025-01-15"
 output: html_document
@@ -139,6 +139,3 @@ tidy_conf_word_count |>
 ```
 
 
-## 4. Conclusion
-
-test
