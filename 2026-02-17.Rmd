@@ -1,0 +1,91 @@
+---
+title: "Tidy Tuesday, 2026-02-17"
+author: "Alice Tivarovsky"
+date: "2026-02-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load Libraries
+
+```{r libs}
+library(tidyverse)
+library(tidytuesdayR)
+library(janitor)
+library(sysfonts)
+library(showtext)
+
+```
+
+# Colors & Fonts
+
+```{r}
+font_add_google("Roboto", family = "roboto_family")
+showtext_auto()
+
+```
+
+# Load Data
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2026-02-17')
+
+dataset <- tuesdata$dataset
+
+```
+
+# Data Wrangling
+
+```{r}
+plot_data <- 
+  dataset |> 
+  filter(toupper(measure) %in% c("TOTAL SHEEP", "TOTAL CATTLE", "TOTAL PIGS", "TOTAL GOATS", "TOTAL LAMBS", "TOTAL AREA OF FARMS")) |> 
+  select(year_ended_june, measure, value) |> 
+  pivot_wider(names_from = "measure", values_from = "value") |> 
+  janitor::clean_names() |> 
+  mutate(across(c(total_sheep, total_cattle, total_pigs, total_goats), ~ if_else(is.na(.x), 0, .x))) |> 
+  filter(!is.na(total_area_of_farms)) |> 
+  mutate(sheep_density = total_sheep / total_area_of_farms, cattle_density = total_cattle / total_area_of_farms, pig_density = total_pigs/total_area_of_farms, goat_density = total_goats/total_area_of_farms) |> 
+  select(c(year_ended_june, sheep_density, cattle_density, pig_density, goat_density)) |> 
+  pivot_longer(sheep_density:goat_density, names_to = "measure") |> 
+  mutate(measure = case_when(measure == "sheep_density" ~ "Sheep Density", 
+                             measure == "pig_density" ~ "Pig Density", 
+                             measure == "cattle_density" ~ "Cattle Density", 
+                             measure == "goat_density" ~ "Goat Density",
+                             .default = "NA"))
+
+```
+
+# Plot
+
+```{r}
+final_plot <- 
+  ggplot(data = plot_data, aes(x = year_ended_june, y = value, color = measure)) + 
+  geom_line() +
+  scale_color_brewer(palette = "Dark2") +
+  theme_bw() +
+  labs(title = "NZ Sheep Population in Decline, Still Vastly Outweighs Other Livestock",
+       subtitle = "Density of Sheep and Other Livestock (Animals per Hectare)", 
+       y = "", 
+       x = "Year") +
+  theme(text = element_text(family = "roboto_family"), 
+        legend.title = element_blank())
+
+final_plot 
+
+```
+
+# Save
+
+```{r}
+ggsave("nz_livestock.png", plot = final_plot, 
+  width = 7,       # 7 inches wide
+  height = 5,      # 5 inches high
+  units = "in",    # Explicitly use inches
+  dpi = 150       # High resolution for print/presentation)
+)
+
+```
