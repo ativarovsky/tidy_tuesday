@@ -9,17 +9,13 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 ## 1. Introduction
 
-This dataset explores posit::conf talks in 2023 and 2024. Some questions to think about: 
-- Which speakers gave talks both years? 
-- Are there keywords that appear in track titles in both 2023 and 2024? 
-- What is the average sentiment of descriptions in each track? 
+This dataset explores posit::conf talks in 2023 and 2024. Some questions to think about: - Which speakers gave talks both years? - Are there keywords that appear in track titles in both 2023 and 2024? - What is the average sentiment of descriptions in each track?
 
-Be careful to de-duplicate the data when needed. Talks are indexed by speaker and some talks have more than one speaker. 
+Be careful to de-duplicate the data when needed. Talks are indexed by speaker and some talks have more than one speaker.
 
-Research question. 
+Research question.
 
 ## 2. Analysis
 
@@ -35,7 +31,7 @@ library(paletteer)
 
 ### Load Data
 
-Data found on Github [here.](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-01-14/readme.md) 
+Data found on Github [here.](https://github.com/rfordatascience/tidytuesday/blob/main/data/2025/2025-01-14/readme.md)
 
 ```{r}
 tuesdata <- tidytuesdayR::tt_load('2025-01-14')
@@ -50,12 +46,12 @@ conf2024 <-
 
 ```
 
-
-We will identify the most common words in both years. We will use the `tidytext` [package.](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html) 
+We will identify the most common words in both years. We will use the `tidytext` [package.](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html)
 
 ### Clean and Wrangle
 
 2023 data
+
 ```{r}
 conf2023_talks <- 
   conf2023 |>
@@ -81,7 +77,7 @@ tidy_conf2023_word_count <-
   mutate(year = "2023")
 
 ```
- 
+
 2024 data
 
 ```{r}
@@ -118,7 +114,8 @@ head(tidy_conf_word_count)
 ## 3. Final Plot
 
 ```{r}
-tidy_conf_word_count |> 
+final_plot <- 
+  tidy_conf_word_count |> 
   filter(n >= 5) |> 
   mutate(word = reorder(word, n)) |> 
   ggplot(aes(n, word, fill = year)) + 
@@ -136,6 +133,17 @@ tidy_conf_word_count |>
         plot.background = element_rect(fill = "lightgray")
   ) 
 
+```
+
+## 4. Save
+
+```{r}
+ggsave("conf_words.png", plot = final_plot, 
+  width = 7,       # 7 inches wide
+  height = 5,      # 5 inches high
+  units = "in",    # Explicitly use inches
+  dpi = 150       # High resolution for print/presentation)
+)
 ```
 
 
