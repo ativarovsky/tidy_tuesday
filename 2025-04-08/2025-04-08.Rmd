@@ -1,0 +1,121 @@
+---
+title: "Tidy Tuesday April 8, 2025"
+author: "Alice Tivarovsky"
+date: "2025-03-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### Load Libraries
+
+```{r libs}
+library(tidyverse)
+library(tidytuesdayR)
+library(janitor)
+library(sysfonts)
+library(showtext)
+
+```
+
+# Colors & Fonts
+
+```{r}
+font_add_google("Roboto", family = "roboto_family")
+showtext_auto()
+
+```
+
+### Load Data
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2025-04-08')
+care_state <- tuesdata$care_state
+```
+
+## Explore
+
+Summarize variables, note missingness, note hierarchy. 
+```{r}
+# snapshot
+care_state |> 
+  head()
+
+# states
+care_state |> 
+  group_by(state) |> 
+  summarise(n = n()) # 56 states? 
+
+# measure names and IDs
+care_state |> 
+  group_by(measure_name) |> 
+  summarise(n = n()) # 21 measures
+
+care_state |> 
+  group_by(measure_id) |> 
+  summarise(n = n()) # 22 measure IDs (so one duplicate)
+
+# conditions
+care_state |> 
+  group_by(condition) |> 
+  summarise(n = n())  # unclear why there are only 6 conditions, one of which is "Emergency Department", possibly innacurate 
+
+
+# time intervals
+care_state |> 
+  group_by(state, condition) |> 
+  summarise(min_start_date = min(start_date), 
+            min_end_date = min(end_date), 
+            max_start_date = max(start_date), 
+            max_end_date = max(end_date))
+
+
+```
+
+- States with longest and shortest wait times? 
+- Over time? 
+```{r}
+wait_time <- 
+  care_state |> 
+  filter(measure_name == "Average (median) time patients spent in the emergency department before leaving from the visit A lower number of minutes is better") |> 
+  arrange(state) |> 
+  drop_na(score)
+
+# dates 
+min_and_max_dates <- 
+  wait_time |> 
+  summarise(min_date = min(start_date), 
+            max_date = max(start_date))
+
+```
+
+## Visualize
+
+```{r}
+mean_wait_time <- mean(wait_time$score)
+
+plot <- 
+  wait_time |> 
+  mutate(state = fct_reorder(state, score)) |> 
+  ggplot(aes(x = score, y = state)) + 
+  geom_bar(stat = "identity", fill = 'darkgreen', color = 'gray') + 
+  geom_vline(xintercept = mean_wait_time) + 
+  geom_text(aes(x = mean_wait_time, 
+                y = 3,
+                label = paste0("Average: ", round(mean_wait_time, 2)), 
+                hjust = 0
+                )) + 
+  labs(title = "Average Hospital Wait Time by State", 
+       x = "Wait time (min)", 
+       y = "State") + 
+  theme_bw() +
+  theme(text = element_text(family = "roboto_family"), 
+        legend.title = element_blank())
+
+plot
+
+```
+
