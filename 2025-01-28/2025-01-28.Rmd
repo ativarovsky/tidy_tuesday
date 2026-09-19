@@ -54,7 +54,6 @@ water_insecurity_2022 |>
 
 Count map in leaflet
 ```{r}
-<<<<<<< HEAD
 basemap <- 
   leaflet()|> 
   addProviderTiles(
