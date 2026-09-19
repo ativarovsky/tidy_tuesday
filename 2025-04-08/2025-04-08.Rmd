@@ -119,3 +119,15 @@ plot
 
 ```
 
+## Save 
+
+```{r}
+ggsave("wait_times.png", 
+       plot = plot, 
+       width = 7, 
+       height = 5,
+       units = "in",
+       dpi = 150)
+
+```
+
