@@ -18,6 +18,7 @@ library(tidytuesdayR)
 library(janitor)
 library(sysfonts)
 library(showtext)
+library(usmap)
 
 ```
 
@@ -66,7 +67,7 @@ care_state |>
 
 # time intervals
 care_state |> 
-  group_by(state, condition) |> 
+  group_by(state) |> 
   summarise(min_start_date = min(start_date), 
             min_end_date = min(end_date), 
             max_start_date = max(start_date), 
@@ -75,12 +76,26 @@ care_state |>
 
 ```
 
+Explore measures with high variability. 
+```{r}
+care_state |> 
+  drop_na() |> 
+  group_by(measure_name) |> 
+  summarise(min_score = min(score), 
+            max_score = max(score))
+
+# "Average (median) time patients spent in the emergency department before leaving from the visit- Psychiatric/Mental Health Patients. A lower number of minutes is better" is highly variable 
+
+```
+
+
 - States with longest and shortest wait times? 
 - Over time? 
 ```{r}
 wait_time <- 
   care_state |> 
-  filter(measure_name == "Average (median) time patients spent in the emergency department before leaving from the visit A lower number of minutes is better") |> 
+  filter(measure_id == 'OP_18c', 
+           !state %in% c('PR', 'GU', 'VI', 'AS', 'MP')) |> 
   arrange(state) |> 
   drop_na(score)
 
@@ -100,24 +115,40 @@ mean_wait_time <- mean(wait_time$score)
 plot <- 
   wait_time |> 
   mutate(state = fct_reorder(state, score)) |> 
-  ggplot(aes(x = score, y = state)) + 
-  geom_bar(stat = "identity", fill = 'darkgreen', color = 'gray') + 
-  geom_vline(xintercept = mean_wait_time) + 
+  ggplot(aes(x = score, y = state, fill = score)) + 
+  geom_col(stat = "identity") + 
+  scale_fill_gradient2(low = "#fe9f6d", high = "#8c2981") + 
+  scale_x_continuous(expand = c(0,0))+
+  geom_vline(xintercept = mean_wait_time) + # average 
   geom_text(aes(x = mean_wait_time, 
                 y = 3,
                 label = paste0("Average: ", round(mean_wait_time, 2)), 
                 hjust = 0
                 )) + 
-  labs(title = "Average Hospital Wait Time by State", 
+  labs(title = "Psych/Mental Health Patients in the Northeast Spend Much Longer \nin the Emergency Room than in Other Regions",
+       subtitle = "Data from CMS, 2023-2024",
        x = "Wait time (min)", 
        y = "State") + 
-  theme_bw() +
+  theme_classic() +
   theme(text = element_text(family = "roboto_family"), 
-        legend.title = element_blank())
+        plot.title = element_text(color = "#b73779", size = 16), 
+        legend.position = "none")
 
 plot
 
 ```
+
+
+```{r}
+# plot_usmap(data = wait_time, values = "score", color = "white") + 
+#   scale_fill_gradient2(low = "#fe9f6d", high = "#8c2981") + 
+#  # scale_fill_continuous(low = "lightgreen", high = "darkgreen", name = "Wait Time (min)") + 
+#   theme(legend.position = "right") + 
+#   labs(title = "Avg Hospital Wait Times, by State", 
+#        subtitle = "2023-2024 data") 
+
+```
+
 
 ## Save 
 
