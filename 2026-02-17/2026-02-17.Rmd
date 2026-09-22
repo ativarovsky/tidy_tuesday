@@ -32,7 +32,6 @@ showtext_auto()
 
 ```{r}
 tuesdata <- tidytuesdayR::tt_load('2026-02-17')
-
 dataset <- tuesdata$dataset
 
 ```

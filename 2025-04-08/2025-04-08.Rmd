@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-### Load Libraries
+## Load Libraries
 
 ```{r libs}
 library(tidyverse)
@@ -22,7 +22,7 @@ library(usmap)
 
 ```
 
-# Colors & Fonts
+## Colors & Fonts
 
 ```{r}
 font_add_google("Roboto", family = "roboto_family")

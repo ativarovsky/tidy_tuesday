@@ -1,0 +1,44 @@
+---
+title: "Tidy Tuesday, September 22, 2026"
+output: html_document
+date: "2026-09-22"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setup
+
+Libraries
+```{r}
+library(tidyverse)
+library(tidytuesdayR)
+library(janitor)
+
+```
+
+Data
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2026-09-22')
+dataset <- tuesdata$dataset
+```
+
+## Tidy & Explore
+
+```{r}
+
+```
+
+## Visualize
+
+```{r}
+
+```
+
+## Conclude
+
+```{r}
+
+```
+
