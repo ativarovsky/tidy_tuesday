@@ -19,12 +19,20 @@ library(janitor)
 ```
 
 Data
+
 ```{r}
 tuesdata <- tidytuesdayR::tt_load('2026-09-22')
-dataset <- tuesdata$dataset
+urban <- tuesdata$urban
+
 ```
 
+- `greenAreaPerCapitaM2`: green area per capita
+- `averageShareOfGreenAreaInCityUrbanAreaPct` Average share of green area in each city in percentage
+
+Want to know cities with highes green area, and which city has gained/lost the most since the first data point in 1990. 
+
 ## Tidy & Explore
+
 
 ```{r}
 
