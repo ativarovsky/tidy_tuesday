@@ -125,8 +125,8 @@ final_plot <-
 
 ```{r}
 ggsave("green_space_change.png", plot = final_plot, 
-  width = 7,       # 7 inches wide
-  height = 12,      # 5 inches high
+  width = 40,       #  inches wide
+  height = 36,      # inches high
   units = "in",    # Explicitly use inches
   dpi = 150       # High resolution for print/presentation)
 )
