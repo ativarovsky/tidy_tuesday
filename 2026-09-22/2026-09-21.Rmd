@@ -100,7 +100,8 @@ largest_change_green_area <-
 ## Visualize
 
 ```{r}
-largest_change_green_area |> 
+final_plot <- 
+  largest_change_green_area |> 
   group_by(sdgRegion) |> 
   ggplot(aes(x = diffce_2020_1990, y = fct_reorder(cityName, diffce_2020_1990), fill = gained_or_lost)) + 
   geom_col(position = "identity") + 
@@ -113,14 +114,22 @@ largest_change_green_area |>
   facet_wrap(~sdgRegion, scales = "free_y", ncol = 1) + 
   labs(x = "Pct Green Space Gained or Lost", 
        y = "", 
-       fill = "Gained/Lost") + 
+       fill = "Gained/Lost", 
+       title = "Cities by Region that have Lost or Gained the Most Green Space", 
+       subtitle = "between 1990 and 2020") + 
   theme_classic()
 
 ```
 
-## Conclude
+## Save
 
 ```{r}
+ggsave("green_space_change.png", plot = final_plot, 
+  width = 7,       # 7 inches wide
+  height = 12,      # 5 inches high
+  units = "in",    # Explicitly use inches
+  dpi = 150       # High resolution for print/presentation)
+)
 
 ```
 
