@@ -1,0 +1,56 @@
+---
+title: "Tidy Tuesday, August 18, 2026"
+output: html_document
+date: "2026-09-22"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setup
+
+Libraries
+```{r}
+library(tidyverse)
+library(tidytuesdayR)
+library(janitor)
+
+```
+
+Data
+```{r}
+tuesdata <- tidytuesdayR::tt_load('2026-08-18')
+
+demo_by_first_language <- tuesdata$demo_by_first_language
+demo_by_nationality <- tuesdata$demo_by_nationality
+demo_by_reasons <- tuesdata$demo_by_reasons
+performance_by_first_language <- tuesdata$performance_by_first_language
+performance_by_nationality <- tuesdata$performance_by_nationality
+
+```
+
+
+## Tidy & Explore
+
+Explore reasons for taking the test
+```{r}
+demo_by_reasons
+```
+
+
+## Visualize
+
+
+## Save
+
+```{r}
+# ggsave("green_space_change.png", plot = final_plot, 
+#   width = 36,       #  inches wide
+#   height = 40,      # inches high
+#   units = "in",    # Explicitly use inches
+#   dpi = 150       # High resolution for print/presentation)
+# )
+
+```
+
