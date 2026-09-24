@@ -15,6 +15,7 @@ Libraries
 library(tidyverse)
 library(tidytuesdayR)
 library(janitor)
+library(ggh4x)
 
 ```
 
@@ -29,19 +30,81 @@ urban <- tuesdata$urban
 - `greenAreaPerCapitaM2`: green area per capita
 - `averageShareOfGreenAreaInCityUrbanAreaPct` Average share of green area in each city in percentage
 
-Want to know cities with highes green area, and which city has gained/lost the most since the first data point in 1990. 
+Want to know cities with highest green area, and which city has gained/lost the most since the first data point in 1990. 
 
 ## Tidy & Explore
 
+By region
+```{r}
+# figure out which cities have values for both 1990 and 2020 (using 2025 limits the data too much)
+available_1990_2020 <- 
+  urban |> 
+  filter(year %in% c(1990, 2020)) |> 
+  group_by(cityName) |> 
+  summarise(n = n()) |> 
+  filter(n == 2)
+
+
+# calculate difference in area between 2020 and 1990
+year_diffs <- 
+  urban |> 
+  left_join(available_1990_2020, by = "cityName") |> 
+  filter(!is.na(n)) |> 
+  arrange(cityName, year) |> 
+  select(c(sdgRegion, cityName, year, averageShareOfGreenAreaInCityUrbanAreaPct)) |> 
+  pivot_wider(names_from = year, values_from = averageShareOfGreenAreaInCityUrbanAreaPct, names_prefix = "year_") |> 
+  mutate(diffce_2020_1990 = year_2020 - year_1990) 
+
+# largest increase in green space between 1990 and 2020, by region
+largest_increase_green_area <- 
+  year_diffs |> 
+  select(c(sdgRegion, cityName, diffce_2020_1990)) |> 
+  filter(diffce_2020_1990 > 0) |> # only cities where green space increased
+  arrange(sdgRegion, desc(diffce_2020_1990)) |> 
+  group_by(sdgRegion) |> 
+  mutate(row_num = row_number()) |> 
+  filter(row_num <= 5) |> 
+  ungroup()
+
+# largest decrease
+largest_decrease_green_area <- 
+  year_diffs |> 
+  select(c(sdgRegion, cityName, diffce_2020_1990)) |> 
+  filter(diffce_2020_1990 < 0) |> # only cities where green space decreased
+  arrange(sdgRegion, desc(diffce_2020_1990)) |> 
+  mutate(neg_diffce_2020_1990 = -diffce_2020_1990) |> 
+  group_by(sdgRegion) |> 
+  mutate(row_num = row_number()) |> 
+  filter(row_num <= 5) |> 
+  ungroup()
+
+```
 
 ```{r}
+year_diffs |> 
+  filter(sdgRegion == 'Northern America and Europe') |> 
+  ggplot(aes(x = diffce_2020_1990)) + 
+  geom_histogram()
+
+```
+
+Largest change (both increase and decrease) 
+```{r}
+largest_change_green_area <- 
+  largest_decrease_green_area |> 
+  select(-neg_diffce_2020_1990) |> 
+  rbind(largest_increase_green_area) 
 
 ```
 
 ## Visualize
 
 ```{r}
-
+largest_change_green_area |> 
+  group_by(sdgRegion) |> 
+  ggplot(aes(x = diffce_2020_1990, y = cityName)) + 
+  geom_bar(stat = "identity") + 
+  facet_wrap(~ sdgRegion)
 ```
 
 ## Conclude
