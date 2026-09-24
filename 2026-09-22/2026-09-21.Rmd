@@ -104,7 +104,7 @@ largest_change_green_area |>
   group_by(sdgRegion) |> 
   ggplot(aes(x = diffce_2020_1990, y = cityName)) + 
   geom_bar(stat = "identity") + 
-  facet_wrap(~ sdgRegion)
+  ggh4x::facet_nested(~ sdgRegion + cityName)
 ```
 
 ## Conclude
