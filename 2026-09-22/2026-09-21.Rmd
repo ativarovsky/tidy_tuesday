@@ -15,12 +15,10 @@ Libraries
 library(tidyverse)
 library(tidytuesdayR)
 library(janitor)
-library(ggh4x)
 
 ```
 
 Data
-
 ```{r}
 tuesdata <- tidytuesdayR::tt_load('2026-09-22')
 urban <- tuesdata$urban
@@ -44,7 +42,6 @@ available_1990_2020 <-
   summarise(n = n()) |> 
   filter(n == 2)
 
-
 # calculate difference in area between 2020 and 1990
 year_diffs <- 
   urban |> 
@@ -63,7 +60,7 @@ largest_increase_green_area <-
   arrange(sdgRegion, desc(diffce_2020_1990)) |> 
   group_by(sdgRegion) |> 
   mutate(row_num = row_number()) |> 
-  filter(row_num <= 5) |> 
+  filter(row_num <= 10) |> 
   ungroup()
 
 # largest decrease
@@ -75,11 +72,12 @@ largest_decrease_green_area <-
   mutate(neg_diffce_2020_1990 = -diffce_2020_1990) |> 
   group_by(sdgRegion) |> 
   mutate(row_num = row_number()) |> 
-  filter(row_num <= 5) |> 
+  filter(row_num <= 10) |> 
   ungroup()
 
 ```
 
+Visualize distribution. 
 ```{r}
 year_diffs |> 
   filter(sdgRegion == 'Northern America and Europe') |> 
@@ -93,7 +91,9 @@ Largest change (both increase and decrease)
 largest_change_green_area <- 
   largest_decrease_green_area |> 
   select(-neg_diffce_2020_1990) |> 
-  rbind(largest_increase_green_area) 
+  rbind(largest_increase_green_area) |> 
+  mutate(gained_or_lost = if_else(diffce_2020_1990 < 0, "lost", "gained")) |> 
+  arrange(sdgRegion, desc(diffce_2020_1990))
 
 ```
 
@@ -102,9 +102,20 @@ largest_change_green_area <-
 ```{r}
 largest_change_green_area |> 
   group_by(sdgRegion) |> 
-  ggplot(aes(x = diffce_2020_1990, y = cityName)) + 
-  geom_bar(stat = "identity") + 
-  ggh4x::facet_nested(~ sdgRegion + cityName)
+  ggplot(aes(x = diffce_2020_1990, y = fct_reorder(cityName, diffce_2020_1990), fill = gained_or_lost)) + 
+  geom_col(position = "identity") + 
+  xlim(-30, 30)+
+  # color code manually
+  scale_fill_manual(values = c("gained" = "#2ca25f", "lost" = "#8c510a")) + 
+  # add labels
+  geom_text(aes(label = round(diffce_2020_1990, 0)), 
+            vjust = 0.2) + 
+  facet_wrap(~sdgRegion, scales = "free_y", ncol = 1) + 
+  labs(x = "Pct Green Space Gained or Lost", 
+       y = "", 
+       fill = "Gained/Lost") + 
+  theme_classic()
+
 ```
 
 ## Conclude
