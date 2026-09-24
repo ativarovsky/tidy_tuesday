@@ -117,7 +117,9 @@ final_plot <-
        fill = "Gained/Lost", 
        title = "Cities by Region that have Lost or Gained the Most Green Space", 
        subtitle = "between 1990 and 2020") + 
-  theme_classic()
+  theme_bw()
+
+final_plot
 
 ```
 
