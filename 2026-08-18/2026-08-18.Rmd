@@ -123,8 +123,8 @@ final_plot <-
 ```{r}
 ggsave("test_scores_by_reason.png", 
        plot = final_plot,
-       width = 8,       #  inches wide
-       height = 5,      # inches high
+       width = 12,       #  inches wide
+       height = 10,      # inches high
        units = "in",    # Explicitly use inches
        dpi = 150       # High resolution for print/presentation)
 )
