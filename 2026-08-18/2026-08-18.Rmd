@@ -71,31 +71,63 @@ demo_by_reasons |>
 - total percent adds up to 66% (not 100%?)
 - maybe make a proportion bar chart and note students that did well, ok, and not good? (i.e. collapse categories)
 
+Change band to factor. 
+```{r}
+demo_by_reasons <- 
+  demo_by_reasons |> 
+  mutate(band = factor(band, levels = c('<4', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9')), 
+         percent = round(percent, 3))
+
+```
+
 Does the reason for taking the test affect the score?
+
+faceted distributions
 ```{r}
 demo_by_reasons |> 
-  mutate(band = factor(band, levels = c('<4', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9')), 
-         percent = round(percent, 3)) |> 
-  ggplot(aes(x = reason, y = percent)) + 
-  geom_point()
+  ggplot(aes(x = band, y = percent)) + 
+  geom_point() +
+  facet_wrap(~reason, ncol = 2)
 
-
+```
+proportion bar chart
+```{r}
+demo_by_reasons |> 
+  ggplot(aes(x = percent, y = reason, fill = fct_rev(band))) + 
+  geom_col()
   
 ```
 
 
-## Visualize
+## Final Visualization
+
+```{r}
+final_plot <- 
+  demo_by_reasons |> 
+  ggplot(aes(x = percent, y = reason, fill = fct_rev(band))) +
+  geom_col() + 
+  scale_fill_viridis_d(option = "viridis") + 
+  labs(x = "Percent in Score Band", 
+       y = "", 
+       fill = "Score Band", 
+       title = "IELTS Exam Scores by Reason for Taking Exam", 
+       subtitle = "2022-2025") + 
+  theme_minimal()
+
+
+```
 
 
 ## Save
 
 ```{r}
-# ggsave("green_space_change.png", plot = final_plot, 
-#   width = 36,       #  inches wide
-#   height = 40,      # inches high
-#   units = "in",    # Explicitly use inches
-#   dpi = 150       # High resolution for print/presentation)
-# )
+ggsave("test_scores_by_reason.png", 
+       plot = final_plot,
+       width = 8,       #  inches wide
+       height = 5,      # inches high
+       units = "in",    # Explicitly use inches
+       dpi = 150       # High resolution for print/presentation)
+)
 
 ```
 
