@@ -16,6 +16,8 @@ library(tidyverse)
 library(tidytuesdayR)
 library(janitor)
 
+options(scipen = 999)
+
 ```
 
 Data
@@ -33,9 +35,35 @@ performance_by_nationality <- tuesdata$performance_by_nationality
 
 ## Tidy & Explore
 
-Explore reasons for taking the test
+Explore reasons for taking the test. 
+
+Note that data are grouped and the `percent` variable indicates the percentage of population with that reason that received that score. 
+
+Also note that lowest band category is <4, then 4, 4.5, 5, 5.5, and so on through 9, will need to order the categories. 
 ```{r}
-demo_by_reasons
+demo_by_reasons 
+
+demo_by_reasons |> 
+  group_by(reason) |> 
+  summarise(n = n())
+
+demo_by_reasons |> 
+  group_by(band) |> 
+  summarise(n = n())
+
+demo_by_reasons |> 
+  summarise(sum(percent))
+            
+```
+
+Does the reason for taking the test affect the score?
+
+```{r}
+demo_by_reasons |> 
+  mutate(band = factor(band, levels = c('<4', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9'))) |> 
+  group_by(year) |> 
+  summarise(check_pct = sum(percent))
+  
 ```
 
 
