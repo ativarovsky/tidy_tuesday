@@ -41,6 +41,31 @@ There are five datasets, each of which details score breakdown by first language
 
 Note that in the `demo_by_...` datasets, data are grouped such that the `percent` variable indicates the percentage of population with that reason that received that score. Also note that there are two types of IELTS exams; Academic and General Training and the scores likely differ between them. 
 
+### Performance by First Language
+
+It would make sense that English speakers score the highest, but maybe that only applies to one of the parts (i.e. speaking?)
+```{r}
+performance_by_first_language |> 
+  head()
+
+performance_by_first_language |> 
+  group_by(language) |> 
+  summarise(n = n()) # 53 languages
+
+performance_by_first_language |> 
+  filter(year == '2024-2025' & type == 'Academic') |> 
+  ggplot(aes(x = part, y = score, fill = part)) + 
+  geom_col() + 
+  facet_wrap(~language)
+
+performance_by_first_language |> 
+  filter(year == '2024-2025' & type == 'General_Training') |> 
+  ggplot(aes(x = part, y = score, fill = part)) + 
+  geom_col() + 
+  facet_wrap(~language)
+
+```
+
 ### Reasons for Taking 
 
 ```{r}
@@ -91,7 +116,7 @@ faceted distributions
 demo_by_reasons |> 
   ggplot(aes(x = band, y = percent)) + 
   geom_point() +
-  facet_wrap(~reason, ncol = 2)
+  facet_wrap(~reason, ncol = 1)
 
 ```
 
@@ -101,25 +126,31 @@ demo_by_reasons |>
   ggplot(aes(x = percent, y = reason, fill = fct_rev(band))) + 
   geom_col()
   
+
 ```
 
-Nothing jumps out, distributions are fairly similar between reasons for taking the test. 
-
-### Performance by First Language
-
-It would make sense that English speakers score the highest, but maybe that only applies to one of the parts (i.e. speaking?)
+Too many categories, re-tool this to be "proportion high-scorers" by reason. 
 ```{r}
-performance_by_first_language |> 
-  head()
-
-performance_by_first_language |> 
-  group_by(language) |> 
-  summarise(n = n()) # 53 languages
-
-performance_by_first_language |> 
-  
+plot_data <- 
+  demo_by_reasons |> 
+#  filter(type == 'General_Training') |> 
+  mutate(high_scorer = if_else(band %in% c('7.5','8','8.5','9'), "high_scorer", "not_high_scorer")) |> 
+  group_by(reason, high_scorer) |> # collapse years and test type
+  summarise(percent_sum = sum(percent), .groups = "drop_last") |> 
+  mutate(proportion = percent_sum/sum(percent_sum))
+#  filter(high_scorer == 'high_scorer') |> 
+#  arrange(desc(percent_sum))
 
 ```
+
+
+```{r}
+plot_data |> 
+  ungroup() |> 
+  summarise(sum_percent = sum(percent_high))
+
+```
+
 
 ## Final Visualization
 
@@ -136,6 +167,7 @@ final_plot <-
        subtitle = "2022-2025") + 
   theme_minimal()
 
+final_plot
 
 ```
 
