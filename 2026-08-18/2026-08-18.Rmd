@@ -20,7 +20,7 @@ options(scipen = 999)
 
 ```
 
-Data
+Data import.
 ```{r}
 tuesdata <- tidytuesdayR::tt_load('2026-08-18')
 
@@ -35,11 +35,14 @@ performance_by_nationality <- tuesdata$performance_by_nationality
 
 ## Tidy & Explore
 
-Explore reasons for taking the test. 
+The International English Language Testing System (IELTS) exam consists of four parts: listening, speaking reading and writing. Each part is scored on a band system from 1 to 9, and the four parts are averaged for a total score. Values for 2022, 2023, and 2024 are included in these datasets. 
 
-Note that data are grouped and the `percent` variable indicates the percentage of population with that reason that received that score. 
+There are five datasets, each of which details score breakdown by first language, nationality, and reasons for taking the test. 
 
-Also note that lowest band category is <4, then 4, 4.5, 5, 5.5, and so on through 9, will need to order the categories. 
+Note that in the `demo_by_...` datasets, data are grouped such that the `percent` variable indicates the percentage of population with that reason that received that score. Also note that there are two types of IELTS exams; Academic and General Training and the scores likely differ between them. 
+
+### Reasons for Taking 
+
 ```{r}
 demo_by_reasons 
 
@@ -67,6 +70,7 @@ demo_by_reasons |>
             
 ```
 
+- lowest band category is <4, then 4, 4.5, 5, 5.5, and so on through 9, will need to order the categories. 
 - 11 reasons for taking the test (including "Other")
 - total percent adds up to 66% (not 100%?)
 - maybe make a proportion bar chart and note students that did well, ok, and not good? (i.e. collapse categories)
@@ -90,6 +94,7 @@ demo_by_reasons |>
   facet_wrap(~reason, ncol = 2)
 
 ```
+
 proportion bar chart
 ```{r}
 demo_by_reasons |> 
@@ -98,6 +103,23 @@ demo_by_reasons |>
   
 ```
 
+Nothing jumps out, distributions are fairly similar between reasons for taking the test. 
+
+### Performance by First Language
+
+It would make sense that English speakers score the highest, but maybe that only applies to one of the parts (i.e. speaking?)
+```{r}
+performance_by_first_language |> 
+  head()
+
+performance_by_first_language |> 
+  group_by(language) |> 
+  summarise(n = n()) # 53 languages
+
+performance_by_first_language |> 
+  
+
+```
 
 ## Final Visualization
 
