@@ -65,13 +65,14 @@ final_plot <-
   ggplot(data = plot_data, aes(x = year_ended_june, y = value, color = measure)) + 
   geom_line() +
   scale_color_brewer(palette = "Dark2") +
-  theme_bw() +
+  theme_classic() +
   labs(title = "NZ Sheep Population in Decline, Still Vastly Outweighs Other Livestock",
        subtitle = "Density of Sheep and Other Livestock (Animals per Hectare)", 
        y = "", 
        x = "Year") +
   theme(text = element_text(family = "roboto_family"), 
-        legend.title = element_blank())
+        legend.title = element_blank(), 
+        legend.position = "top")
 
 final_plot 
 
