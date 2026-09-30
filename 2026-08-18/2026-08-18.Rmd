@@ -137,8 +137,11 @@ plot_data <-
   mutate(high_scorer = if_else(band %in% c('7.5','8','8.5','9'), "high_scorer", "not_high_scorer")) |> 
   group_by(reason, high_scorer) |> # collapse years and test type
   summarise(percent_sum = sum(percent), .groups = "drop_last") |> 
-  mutate(proportion = percent_sum/sum(percent_sum))
-#  filter(high_scorer == 'high_scorer') |> 
+  mutate(proportion = percent_sum/sum(percent_sum)) |> 
+  filter(high_scorer == 'high_scorer') |> 
+  ungroup() |> 
+  mutate(reason = fct_reorder(reason, proportion))
+
 #  arrange(desc(percent_sum))
 
 ```
@@ -146,8 +149,17 @@ plot_data <-
 
 ```{r}
 plot_data |> 
-  ungroup() |> 
-  summarise(sum_percent = sum(percent_high))
+  ggplot(aes(x = proportion, y = reason, proportion)) + 
+  geom_segment(aes(x = 0, xend = proportion, y = reason, yend = reason), color = 'grey') + 
+  geom_point(color = "blue") + 
+  theme_classic() + 
+  scale_x_continuous(expand = c(0,0)) + 
+  labs(y = "", 
+       x = "Proportion High Scorers in Category", 
+       title = "Proportion High Scorers in IELTS English Competency Exam", 
+       subtitle = "Scorers in band 7 or higher (out of 9)") +
+  theme(plot.title = element_text(hjust = 2))
+
 
 ```
 
