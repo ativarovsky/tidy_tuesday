@@ -146,38 +146,22 @@ plot_data <-
 
 ```
 
-
-```{r}
-plot_data |> 
-  ggplot(aes(x = proportion, y = reason, proportion)) + 
-  geom_segment(aes(x = 0, xend = proportion, y = reason, yend = reason), color = 'grey') + 
-  geom_point(color = "blue") + 
-  theme_classic() + 
-  scale_x_continuous(expand = c(0,0)) + 
-  labs(y = "", 
-       x = "Proportion High Scorers in Category", 
-       title = "Proportion High Scorers in IELTS English Competency Exam", 
-       subtitle = "Scorers in band 7 or higher (out of 9)") +
-  theme(plot.title = element_text(hjust = 2))
-
-
-```
-
-
 ## Final Visualization
 
 ```{r}
 final_plot <- 
-  demo_by_reasons |> 
-  ggplot(aes(x = percent, y = reason, fill = fct_rev(band))) +
-  geom_col() + 
-  scale_fill_viridis_d(option = "viridis") + 
-  labs(x = "Percent in Score Band", 
-       y = "", 
-       fill = "Score Band", 
-       title = "IELTS Exam Scores by Reason for Taking Exam", 
-       subtitle = "2022-2025") + 
-  theme_minimal()
+  plot_data |> 
+  ggplot(aes(x = proportion, y = reason, proportion)) + 
+  geom_segment(aes(x = 0, xend = proportion, y = reason, yend = reason), color = 'grey') + 
+  geom_point(size = 4, color = "blue") + 
+  theme_classic() + 
+  scale_x_continuous(limits = c(0,max(plot_data$proportion)), 
+                     expand = expansion((mult = c(0,0.1)))) + # get rid of left hand buffer
+  labs(y = "", 
+       x = "Proportion High Scorers",
+       y = "Reason for Taking IELTS",
+       title = "Proportion High Scorers in IELTS \nEnglish Competency Exam", 
+       subtitle = "Scorers in band 7 or higher (out of 9)") 
 
 final_plot
 
