@@ -152,9 +152,9 @@ final_plot <-
   theme(
     text = element_text(family = main_font),
     plot.title = element_markdown(face = "bold", 
-                                  size = 16), 
+                                  size = 18), 
     plot.subtitle = element_markdown(color = "#5E5C5B",   
-                                     size = 11,
+                                     size = 12,
                                      margin = margin(b = 15)), # Adds a little whitespace cushion below the subtitle
     legend.position = "none", 
     axis.line.x = element_blank()
