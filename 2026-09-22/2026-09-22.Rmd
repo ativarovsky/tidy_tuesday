@@ -16,10 +16,26 @@ library(tidyverse)
 library(tidytuesdayR)
 library(janitor)
 library(ggtext)
+library(showtext)
+library(sysfonts)
 
 ```
 
-Data
+Fonts
+```{r}
+font_add_google(
+  name = 'Inter', 
+  family = 'Inter'
+)
+
+showtext_auto()
+
+main_font <- 'Inter'
+
+```
+
+## Data
+
 ```{r}
 tuesdata <- tidytuesdayR::tt_load('2026-09-22')
 urban <- tuesdata$urban
@@ -102,14 +118,25 @@ largest_change_green_area <-
 
 ```
 
-## Visualize
+## Plot
+
+```{r}
+plot <- 
+  largest_change_green_area |> 
+  ggplot(aes(x = diffce_2020_1990, y = fct_reorder(cityName, diffce_2020_1990), fill = gained_or_lost)) + 
+  geom_col(position = "identity") 
+
+```
+
+## Styling
+
+- color: there are really only two colors - more green space (probably green?) and less green space (probably brown)
+- fonts
 
 ```{r}
 final_plot <- 
-  largest_change_green_area |> 
-  ggplot(aes(x = diffce_2020_1990, y = fct_reorder(cityName, diffce_2020_1990), fill = gained_or_lost)) + 
-  geom_col(position = "identity") + 
-  xlim(-30, 30)+
+  plot + 
+  xlim(-30, 30) + # imit axis
   # color code manually
   scale_fill_manual(values = c("gained" = "#3B7A57", "lost" = "#B37D4E")) + 
   # add labels
@@ -123,9 +150,11 @@ final_plot <-
        subtitle = "North America and Europe, between 1990 and 2020") + 
   theme_classic() + 
   theme(
-    plot.title = element_markdown(face = "bold", size = 16), 
-    plot.subtitle = element_markdown(color = "#55647A",   
-                                     size = 11,         
+    text = element_text(family = main_font),
+    plot.title = element_markdown(face = "bold", 
+                                  size = 16), 
+    plot.subtitle = element_markdown(color = "#5E5C5B",   
+                                     size = 11,
                                      margin = margin(b = 15)), # Adds a little whitespace cushion below the subtitle
     legend.position = "none", 
     axis.line.x = element_blank()
