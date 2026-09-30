@@ -15,6 +15,7 @@ Libraries
 library(tidyverse)
 library(tidytuesdayR)
 library(janitor)
+library(ggtext)
 
 ```
 
@@ -34,9 +35,14 @@ Want to know cities with highest green area, and which city has gained/lost the 
 
 By region
 ```{r}
+# limit to North America and Europe
+urban_na_eu <- 
+  urban |> 
+  filter(sdgRegion == 'Northern America and Europe')
+
 # figure out which cities have values for both 1990 and 2020 (using 2025 limits the data too much)
 available_1990_2020 <- 
-  urban |> 
+  urban_na_eu |> 
   filter(year %in% c(1990, 2020)) |> 
   group_by(cityName) |> 
   summarise(n = n()) |> 
@@ -44,7 +50,7 @@ available_1990_2020 <-
 
 # calculate difference in area between 2020 and 1990
 year_diffs <- 
-  urban |> 
+  urban_na_eu |> 
   left_join(available_1990_2020, by = "cityName") |> 
   filter(!is.na(n)) |> 
   arrange(cityName, year) |> 
@@ -68,8 +74,8 @@ largest_decrease_green_area <-
   year_diffs |> 
   select(c(sdgRegion, cityName, diffce_2020_1990)) |> 
   filter(diffce_2020_1990 < 0) |> # only cities where green space decreased
-  arrange(sdgRegion, desc(diffce_2020_1990)) |> 
   mutate(neg_diffce_2020_1990 = -diffce_2020_1990) |> 
+  arrange(sdgRegion, desc(neg_diffce_2020_1990)) |> 
   group_by(sdgRegion) |> 
   mutate(row_num = row_number()) |> 
   filter(row_num <= 10) |> 
@@ -80,7 +86,6 @@ largest_decrease_green_area <-
 Visualize distribution. 
 ```{r}
 year_diffs |> 
-  filter(sdgRegion == 'Northern America and Europe') |> 
   ggplot(aes(x = diffce_2020_1990)) + 
   geom_histogram()
 
@@ -102,22 +107,29 @@ largest_change_green_area <-
 ```{r}
 final_plot <- 
   largest_change_green_area |> 
-  group_by(sdgRegion) |> 
   ggplot(aes(x = diffce_2020_1990, y = fct_reorder(cityName, diffce_2020_1990), fill = gained_or_lost)) + 
   geom_col(position = "identity") + 
   xlim(-30, 30)+
   # color code manually
-  scale_fill_manual(values = c("gained" = "#2ca25f", "lost" = "#8c510a")) + 
+  scale_fill_manual(values = c("gained" = "#3B7A57", "lost" = "#B37D4E")) + 
   # add labels
-  geom_text(aes(label = round(diffce_2020_1990, 0)), 
-            vjust = 0.2) + 
-  facet_wrap(~sdgRegion, scales = "free_y", ncol = 1) + 
+  geom_text(aes(label = paste0(round(diffce_2020_1990, 0), '%'),
+            hjust = if_else(diffce_2020_1990 > 0, -0.2, 1.2))
+            ) + 
   labs(x = "Pct Green Space Gained or Lost", 
        y = "", 
        fill = "Gained/Lost", 
-       title = "Cities by Region that have Lost or Gained the Most Green Space", 
-       subtitle = "between 1990 and 2020") + 
-  theme_bw()
+       title = "Cities that have <span style='color:#B37D4E;'>Lost</span> or <span style='color:#3B7A57;'>Gained</span> the Most Green Space", 
+       subtitle = "North America and Europe, between 1990 and 2020") + 
+  theme_classic() + 
+  theme(
+    plot.title = element_markdown(face = "bold", size = 16), 
+    plot.subtitle = element_markdown(color = "#55647A",   
+                                     size = 11,         
+                                     margin = margin(b = 15)), # Adds a little whitespace cushion below the subtitle
+    legend.position = "none", 
+    axis.line.x = element_blank()
+  )
 
 final_plot
 
@@ -127,8 +139,8 @@ final_plot
 
 ```{r}
 ggsave("green_space_change.png", plot = final_plot, 
-  width = 36,       #  inches wide
-  height = 40,      # inches high
+  width = 7,       #  inches wide
+  height = 5,      # inches high
   units = "in",    # Explicitly use inches
   dpi = 150       # High resolution for print/presentation)
 )
