@@ -18,6 +18,25 @@ library(janitor)
 library(ggtext)
 library(systemfonts)
 library(showtext)
+library(scales)
+library(tidytext)
+
+```
+
+Fonts
+```{r}
+font_add_google(
+  name = "Fira Sans", 
+  family = "fira"
+)
+
+font_add_google(
+  name = "PT Sans Caption", 
+  family = "ptsans"
+)
+
+# enable `ggplot` to use google fonts
+showtext.auto()
 
 ```
 
@@ -31,9 +50,154 @@ health <- tuesdata$health
 
 ## Tidy & Explore
 
+```{r}
+health |> 
+  summarise(rows = nrow(health), 
+            columns = ncol(health))
+
+health |> 
+  head(100)
+
+```
+
+Explore categories 
+```{r}
+# income groups
+health |> 
+  group_by(GC_DEV_WIG_2025) |> 
+  summarise(n = n()) # 4 income groups
+
+# regions
+health |> 
+  group_by(GC_DEV_USR_2025) |> 
+  summarise(n = n())
+
+# hospitals per capita
+health |> 
+  drop_na(HL_FPC_HOS_2025) |> 
+  ggplot(aes(x = HL_FPC_HOS_2025)) + 
+  geom_histogram()
+
+# hospitals per km2 (urban center area), by category
+health |> 
+  drop_na(HL_FDE_HOS_2024) |> 
+  ggplot(aes(x = HL_FDE_HOS_2024))+
+  geom_histogram() + 
+  facet_grid(~GC_DEV_WIG_2025 )
+
+# hospitals per km2 by region
+health |> 
+  drop_na() |> 
+  ggplot(aes(x = HL_FDE_HOS_2024)) +
+  geom_histogram()+
+  facet_grid(~GC_DEV_USR_2025)
+  
+# hospitals per capita vs population 
+health |> 
+  select(c(GC_UCN_MAI_2025, GC_UCA_KM2_2025, HL_FPC_HOS_2025, GC_CNT_GAD_2025, GC_POP_TOT_2025, GC_DEV_WIG_2025)) |> 
+  drop_na() |> 
+  ggplot(aes(y = HL_FPC_HOS_2025,  x = GC_POP_TOT_2025, color = GC_DEV_WIG_2025)) +
+  geom_point() +
+  facet_grid(~GC_DEV_WIG_2025)
+  
+# proximity to hospital
+health |> 
+  drop_na() |> 
+  ggplot(aes(x = GC_DEV_USR_2025 , y= HL_SHP_HOS_2025)) + 
+  geom_point() 
+
+```
+
+It's probably true that it's much harder to access a hospital or pharmacy in subsaharan Africa than the developed world, but what's the actual disparity? 
+
+```{r}
+# un-grouped
+health |> 
+  drop_na() |> 
+  mutate(hosp_per_100k_2025 = HL_FPC_HOS_2025*100000, 
+         rx_per_100k_2025 = HL_FPC_PHA_2025*100000) |> 
+  select(GC_DEV_USR_2025, hosp_per_100k_2025, rx_per_100k_2025) |> 
+  pivot_longer(hosp_per_100k_2025:rx_per_100k_2025, names_to = 'Hospital_or_Pharmacy') |> 
+  mutate(Hospital_or_Pharmacy = if_else(Hospital_or_Pharmacy == "hosp_per_100k_2025", "Hospital", "Pharmacy")) |> 
+  ggplot(aes(x = GC_DEV_USR_2025, y = value, fill = Hospital_or_Pharmacy)) + 
+  geom_boxplot()
+
+
+# grouped
+plot_data <- 
+  health |> 
+  drop_na() |>
+  mutate(hosp_per_100k_2025 = HL_FPC_HOS_2025*100000, 
+         rx_per_100k_2025 = HL_FPC_PHA_2025*100000) |> 
+  group_by(GC_DEV_USR_2025) |> 
+  summarise(mean_hosp_per_100k_2025 = mean(hosp_per_100k_2025), 
+            mean_rx_per_100k_2025 = mean(rx_per_100k_2025)) |> 
+  rename(region = GC_DEV_USR_2025) |> 
+  pivot_longer(mean_hosp_per_100k_2025:mean_rx_per_100k_2025, names_to = "Hospital_or_Pharmacy") |> 
+  mutate(Hospital_or_Pharmacy = if_else(Hospital_or_Pharmacy == "mean_hosp_per_100k_2025", "Hospital", "Pharmacy")) |> 
+  mutate(Hospital_or_Pharmacy = factor(Hospital_or_Pharmacy, levels = c("Hospital", "Pharmacy"))) |> 
+  mutate(region_sorted = reorder_within(region, value, Hospital_or_Pharmacy))
+  
+
+plot_data |> 
+  ggplot(aes(x = region, y = value, fill = Hospital_or_Pharmacy)) + 
+  geom_col(position = "dodge") 
+
+
+```
 
 ## Plot
 
+Double-panel lollipop plot. 
+```{r}
+plot_data |> 
+  ggplot(aes(x = value, 
+             y =  region_sorted)) + 
+  geom_segment(aes(x = 0, xend = value, y = region_sorted, yend = region_sorted)) + 
+  geom_point(size = 3.5, color = "#64748B") +
+  scale_y_reordered()+
+  facet_grid(~Hospital_or_Pharmacy, scales = "free_y") + 
+  # remove padding on x axis
+  scale_x_continuous(expand = expansion(mult = c(0, 0.05)), 
+                     labels = label_number(accuracy = 1)) + 
+  theme_bw() + 
+  labs(y = "",
+       x = "Facilities per 100k People")
+
+```
+
+
+
+```{r}
+# 
+# +
+#   geom_col(position = "dodge", size = 2, alpha = 0.7, width = 0.5) + 
+#   xlim(0, 15) +
+#   # color bars manually
+#   scale_fill_manual(values = c("Hospital" = "#F52727", "Pharmacy" = "#4A9E53")) + 
+#   scale_x_continuous(expand = expansion(mult = c(0, 0.05)), 
+#                      labels = label_number(accuracy = 1)) + 
+#   labs(
+#     title = "Hospitals and Pharmacies per Capita, by Region",
+#     subtitle = "<span style='color:#F52727;'>Hospital</span> and <span style='color:#4A9E53;'>Pharmacy</span> Rates per 100K Population, 2025 Data",
+#        x = "Facilities per 100k People", 
+#        y = "") + 
+#   theme_classic(base_family = "ptsans") + 
+#   theme(
+#     plot.title = element_text(family = "fira", size = 18, face = "bold"),
+#     plot.subtitle = element_markdown(family = "ptsans", size = 12),
+#     legend.position = "none", 
+#     plot.title.position = "plot", 
+#     # background
+#     plot.background = element_rect(
+#     fill = "lightgray", color = "lightgray"
+#     ), 
+#     panel.background = element_rect(
+#       fill = "lightgray", colour = "lightgray"), 
+# 
+#   )
+
+```
 
 ## Styling
 
