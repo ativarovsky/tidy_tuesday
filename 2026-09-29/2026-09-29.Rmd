@@ -26,8 +26,8 @@ library(tidytext)
 Fonts
 ```{r}
 font_add_google(
-  name = "Fira Sans", 
-  family = "fira"
+  name = "Inter", 
+  family = "inter"
 )
 
 font_add_google(
@@ -150,54 +150,42 @@ plot_data |>
 
 Double-panel lollipop plot. 
 ```{r}
+hospital_color <- "#64748B"
+pharmacy_color <- "#D97706"
+
 plot_data |> 
   ggplot(aes(x = value, 
              y =  region_sorted)) + 
   geom_segment(aes(x = 0, xend = value, y = region_sorted, yend = region_sorted)) + 
-  geom_point(size = 3.5, color = "#64748B") +
+  geom_point(aes(color = Hospital_or_Pharmacy), size = 3.5) +
   scale_y_reordered()+
-  facet_grid(~Hospital_or_Pharmacy, scales = "free_y") + 
+  facet_wrap(~Hospital_or_Pharmacy, scales = "free_y") + 
   # remove padding on x axis
   scale_x_continuous(expand = expansion(mult = c(0, 0.05)), 
                      labels = label_number(accuracy = 1)) + 
-  theme_bw() + 
+  scale_color_manual(
+    values = c("Hospital" = hospital_color, 
+               "Pharmacy" = pharmacy_color)
+  ) + 
   labs(y = "",
-       x = "Facilities per 100k People")
+       x = "Facilities per 100k People", 
+       title = "<span style='color:#64748B;'>Hospitals</span> and <span style='color:#D97706;'>Pharmacies</span> per Capita, by Region",
+       subtitle = "Rates per 100K Population, 2025 Data") +
+  theme_minimal() + 
+  theme(
+    legend.position = "none",
+    panel.grid = element_blank(),
+    axis.line.y = element_line(color = "lightgray", linewidth = 0.6), 
+    axis.line.x = element_line(color = "lightgray", linewidth = 0.6), 
+    plot.title.position = "plot", 
+    plot.subtitle = element_text(family = "inter", size = 12),
+    plot.title = element_markdown(family = "inter", size = 18, face = "bold"), 
+    element_rect(color = "#F5F3D7")
+    )
 
 ```
 
 
-
-```{r}
-# 
-# +
-#   geom_col(position = "dodge", size = 2, alpha = 0.7, width = 0.5) + 
-#   xlim(0, 15) +
-#   # color bars manually
-#   scale_fill_manual(values = c("Hospital" = "#F52727", "Pharmacy" = "#4A9E53")) + 
-#   scale_x_continuous(expand = expansion(mult = c(0, 0.05)), 
-#                      labels = label_number(accuracy = 1)) + 
-#   labs(
-#     title = "Hospitals and Pharmacies per Capita, by Region",
-#     subtitle = "<span style='color:#F52727;'>Hospital</span> and <span style='color:#4A9E53;'>Pharmacy</span> Rates per 100K Population, 2025 Data",
-#        x = "Facilities per 100k People", 
-#        y = "") + 
-#   theme_classic(base_family = "ptsans") + 
-#   theme(
-#     plot.title = element_text(family = "fira", size = 18, face = "bold"),
-#     plot.subtitle = element_markdown(family = "ptsans", size = 12),
-#     legend.position = "none", 
-#     plot.title.position = "plot", 
-#     # background
-#     plot.background = element_rect(
-#     fill = "lightgray", color = "lightgray"
-#     ), 
-#     panel.background = element_rect(
-#       fill = "lightgray", colour = "lightgray"), 
-# 
-#   )
-
-```
 
 ## Styling
 
