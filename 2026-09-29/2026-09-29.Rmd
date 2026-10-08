@@ -150,16 +150,28 @@ plot_data |>
 
 Double-panel lollipop plot. 
 ```{r}
-hospital_color <- "#64748B"
-pharmacy_color <- "#D97706"
-
-plot_data |> 
+basic_plot <- 
+  plot_data |> 
   ggplot(aes(x = value, 
              y =  region_sorted)) + 
   geom_segment(aes(x = 0, xend = value, y = region_sorted, yend = region_sorted)) + 
   geom_point(aes(color = Hospital_or_Pharmacy), size = 3.5) +
   scale_y_reordered()+
-  facet_wrap(~Hospital_or_Pharmacy, scales = "free_y") + 
+  facet_wrap(~Hospital_or_Pharmacy, scales = "free_y") 
+
+```
+
+
+
+## Styling
+
+Add fonts, colors, theme, and labels. 
+```{r}
+hospital_color <- "#64748B"
+pharmacy_color <- "#D97706"
+
+final_plot <- 
+  basic_plot + 
   # remove padding on x axis
   scale_x_continuous(expand = expansion(mult = c(0, 0.05)), 
                      labels = label_number(accuracy = 1)) + 
@@ -186,14 +198,10 @@ plot_data |>
 ```
 
 
-
-## Styling
-
-
 ## Save
 
 ```{r}
-ggsave(".png", plot = final_plot, 
+ggsave("hospitals_and_pharmacies.png", plot = final_plot, 
   width = 7,       #  inches wide
   height = 5,      # inches high
   units = "in",    # Explicitly use inches
