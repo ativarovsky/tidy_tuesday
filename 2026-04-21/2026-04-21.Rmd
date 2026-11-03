@@ -21,6 +21,8 @@ library(showtext)
 library(scales)
 library(tidytext)
 
+options(scipen = 999)
+
 ```
 
 Fonts
@@ -53,6 +55,7 @@ spending_purpose <- tuesdata$spending_purpose
 
 ## Tidy & Explore
 
+Health spending
 ```{r}
 health_spending |> 
   group_by(expenditure_type) |> 
@@ -64,6 +67,13 @@ health_spending |>
 health_spending |> 
   group_by(country_name) |> 
   summarise(n=n())
+
+```
+
+Spending purpose
+```{r}
+spending_purpose |> 
+  arrange(desc(value))
 
 # explore preventative vs curative 
 spending_purpose |> 
@@ -79,32 +89,44 @@ spending_purpose |>
   filter(iso3_code == "USA" & unit == 'constant 2023 US$') |> #USA
   ggplot(aes(x = year, y = value, color = spending_purpose)) + 
   geom_line() + 
-  labs(title = "USA Healthcare Spending")
+  labs(title = "USA Healthcare Spending") + 
+  scale_y_continuous(labels = label_number(scale = 1e-12), 
+                     limits = c(0,4e12))
 
 spending_purpose |> 
   filter(iso3_code == "CHN" & unit == 'constant 2023 US$') |> 
   ggplot(aes(x = year, y = value, color = spending_purpose)) + 
   geom_line() + 
-  labs(title = "China Healthcare Spending")
+  labs(title = "China Healthcare Spending") + 
+  scale_y_continuous(labels = label_number(scale = 1e-12), 
+                     limits = c(0,4e12))
 
-# what about proportions? 
-spending_purpose |> 
-  filter(iso3_code == "USA" & unit == '% of current health expenditure') |> 
-  ggplot(aes(x = year, y = value, color = spending_purpose)) + 
-  geom_line()
-
-spending_purpose |> 
-  filter(country_name == "CHN" & unit == '% of current health expenditure') |> 
-  ggplot(aes(x = year, y = value, color = spending_purpose)) + 
-  geom_line()
 
 ```
 
-
+In both US and China, curative care spending between 2026 and 2022 outpaced all other healthcare spending combined. In both countries, it has risen sharply since 2016. 
 
 ## Plot
 
 ```{r}
+spending_purpose |> 
+  filter(iso3_code %in% c("CHN", "USA") &  unit == 'constant 2023 US$') |> 
+  ggplot(aes(x = year, y = value, color = country_name)) + 
+  geom_line() + 
+  facet_wrap(~spending_purpose)
+
+spending_purpose |> 
+  group_by(spending_purpose) |> 
+  summarise(n = n())
+
+spending_purpose |> 
+  filter(iso3_code %in% c("CHN", "USA") &  
+           unit == 'constant 2023 US$' & 
+           spending_purpose %in% c("Curative care", "	Preventive care", "Governance, and health system and financing administration", "Medical goods (non-specified by function)") &
+           year %in% c(2018, 2019, 2020, 2021, 2022)) |> 
+  ggplot(aes(x = year, y = value, color = country_name)) + 
+  geom_line() + 
+  facet_wrap(~spending_purpose, nrow=3)
 
 ```
 
