@@ -27,20 +27,19 @@ options(scipen = 999)
 
 Fonts
 ```{r}
-font_add_google(
-  name = "Inter", 
-  family = "inter"
-)
+# font_add_google(
+#   name = "PT Sans Caption", 
+#   family = "ptsans"
+# )
 
 font_add_google(
-  name = "PT Sans Caption", 
-  family = "ptsans"
+  name = 'Inter', 
+  family = 'Inter'
 )
 
-# enable `ggplot` to use google fonts
-showtext.auto()
+showtext_auto()
 
-main_font <- "inter"
+main_font <- 'Inter'
 
 ```
 
@@ -122,7 +121,7 @@ final_plot <-
                              iso3_code == "USA" ~ "United States", 
                              .default = NA)) |> 
   ggplot(aes(x = year, y = value, color = spending_purpose_group)) + 
-  geom_line() + 
+  geom_line(aes(color = spending_purpose_group, linewidth = spending_purpose_group, group = spending_purpose)) + 
   geom_point() + 
   facet_wrap(~iso3_code, scales = "free_x") +
   scale_color_manual(values = c("Curative care" = "#FC8D62", "Preventive care" = "#0284C7")) + 
@@ -130,20 +129,21 @@ final_plot <-
                      limits = c(0,4e12)) + 
   scale_linewidth_manual(
     values = c(
-      "Curative Care"   = 1.3,  # Thickest line for the primary hero
-      "Preventive Care" = 1.1,  # Slightly thinner for the secondary hero
-      "Other"           = 0.5   # Thin background lines
+      "Curative care"   = 1.0,  
+      "Preventive care" = 1.0,
+      "Other"           = 0.5   
     )
   ) +
-  labs(title = "United States Outspends China more than 5x on <span style='color:#FC8D62;'>Curative Care</span>. Preventive Care Spending Trails far Behind in Both Nations", 
+  labs(title = "United States Outspends China more than 5x on <span style='color:#FC8D62;'>Curative Care</span>. <span style='color:#0284C7;'>Preventive Care</span> Spending Trails far Behind in Both Nations", 
+       subtitle = "Annual Healthcare Spending by Category (other categories showing in gray)",
        x = "Year",
        y = "Healthcare Spending") + 
-  theme_classic() + 
+  theme_minimal() + 
   theme(panel.border = element_rect(color = "darkgray", fill = NA, linewidth = 1), 
         text = element_text(family = main_font),
         legend.position = "none",
-        plot.title = element_markdown(face = "bold", 
-                                  size = 14), 
+        plot.title = element_markdown(face = "bold", size = 14), 
+        plot.subtitle = element_markdown(size = 11)
 ) 
 
 final_plot
