@@ -40,9 +40,12 @@ font_add_google(
 # enable `ggplot` to use google fonts
 showtext.auto()
 
+main_font <- "inter"
+
 ```
 
 ## Data
+
 ```{r}
 tuesdata <- tidytuesdayR::tt_load('2026-04-21')
 
@@ -122,12 +125,17 @@ final_plot <-
   scale_color_brewer(palette = "Set2") + 
   scale_y_continuous(labels = label_dollar(scale_cut = cut_short_scale()), 
                      limits = c(0,4e12)) + 
-  labs(title = "Healthcare Spending in USA and China", 
+  labs(title = "United States Outspends China more than 5x on <span style='color:#FC8D62;'>Curative Care</span>", 
        x = "Year",
        y = "Healthcare Spending") + 
   theme_classic() + 
-  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1)
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1), 
+        text = element_text(family = main_font),
+        plot.title = element_markdown(face = "bold", 
+                                  size = 14), 
 ) 
+
+final_plot
 
 ```
 
