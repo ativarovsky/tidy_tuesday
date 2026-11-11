@@ -156,7 +156,7 @@ final_plot
 ## Save
 
 ```{r}
-ggsave(".png", plot = final_plot, 
+ggsave("final_plot.png", plot = final_plot, 
   width = 7,       #  inches wide
   height = 5,      # inches high
   units = "in",    # Explicitly use inches
