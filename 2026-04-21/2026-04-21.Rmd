@@ -114,23 +114,34 @@ In both US and China, curative care spending between 2026 and 2022 outpaced all 
 ```{r}
 final_plot <- 
   spending_purpose |> 
-  filter(iso3_code %in% c("CHN", "USA") &  unit == 'constant 2023 US$') |> 
+  filter(iso3_code %in% c("CHN", "USA") &  unit == 'constant 2023 US$' & year <= 2021 & year >= 2018) |> 
+  mutate(spending_purpose_group = case_when(spending_purpose == "Curative care" ~ "Curative care", 
+                                            spending_purpose == "Preventive care" ~ "Preventive care", 
+                                            TRUE ~ "Other")) |> 
   mutate(iso3_code = case_when(iso3_code == "CHN" ~ "China", 
                              iso3_code == "USA" ~ "United States", 
                              .default = NA)) |> 
-  ggplot(aes(x = year, y = value, color = spending_purpose)) + 
+  ggplot(aes(x = year, y = value, color = spending_purpose_group)) + 
   geom_line() + 
   geom_point() + 
   facet_wrap(~iso3_code, scales = "free_x") +
-  scale_color_brewer(palette = "Set2") + 
+  scale_color_manual(values = c("Curative care" = "#FC8D62", "Preventive care" = "#0284C7")) + 
   scale_y_continuous(labels = label_dollar(scale_cut = cut_short_scale()), 
                      limits = c(0,4e12)) + 
-  labs(title = "United States Outspends China more than 5x on <span style='color:#FC8D62;'>Curative Care</span>", 
+  scale_linewidth_manual(
+    values = c(
+      "Curative Care"   = 1.3,  # Thickest line for the primary hero
+      "Preventive Care" = 1.1,  # Slightly thinner for the secondary hero
+      "Other"           = 0.5   # Thin background lines
+    )
+  ) +
+  labs(title = "United States Outspends China more than 5x on <span style='color:#FC8D62;'>Curative Care</span>. Preventive Care Spending Trails far Behind in Both Nations", 
        x = "Year",
        y = "Healthcare Spending") + 
   theme_classic() + 
-  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1), 
+  theme(panel.border = element_rect(color = "darkgray", fill = NA, linewidth = 1), 
         text = element_text(family = main_font),
+        legend.position = "none",
         plot.title = element_markdown(face = "bold", 
                                   size = 14), 
 ) 
