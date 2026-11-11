@@ -109,33 +109,30 @@ In both US and China, curative care spending between 2026 and 2022 outpaced all 
 ## Plot
 
 ```{r}
-spending_purpose |> 
+final_plot <- 
+  spending_purpose |> 
   filter(iso3_code %in% c("CHN", "USA") &  unit == 'constant 2023 US$') |> 
-  ggplot(aes(x = year, y = value, color = country_name)) + 
+  mutate(iso3_code = case_when(iso3_code == "CHN" ~ "China", 
+                             iso3_code == "USA" ~ "United States", 
+                             .default = NA)) |> 
+  ggplot(aes(x = year, y = value, color = spending_purpose)) + 
   geom_line() + 
-  facet_wrap(~spending_purpose)
-
-spending_purpose |> 
-  group_by(spending_purpose) |> 
-  summarise(n = n())
-
-spending_purpose |> 
-  filter(iso3_code %in% c("CHN", "USA") &  
-           unit == 'constant 2023 US$' & 
-           spending_purpose %in% c("Curative care", "	Preventive care", "Governance, and health system and financing administration", "Medical goods (non-specified by function)") &
-           year %in% c(2018, 2019, 2020, 2021, 2022)) |> 
-  ggplot(aes(x = year, y = value, color = country_name)) + 
-  geom_line() + 
-  facet_wrap(~spending_purpose, nrow=3)
+  geom_point() + 
+  facet_wrap(~iso3_code, scales = "free_x") +
+  scale_color_brewer(palette = "Set2") + 
+  scale_y_continuous(labels = label_dollar(scale_cut = cut_short_scale()), 
+                     limits = c(0,4e12)) + 
+  labs(title = "Healthcare Spending in USA and China", 
+       x = "Year",
+       y = "Healthcare Spending") + 
+  theme_classic() + 
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1)
+) 
 
 ```
 
 
-## Styling
 
-```{r}
-
-```
 
 ## Save
 
