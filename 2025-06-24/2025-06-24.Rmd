@@ -16,18 +16,54 @@ library(tidyverse)
 library(tidytuesdayR)
 library(janitor)
 library(ggtext)
+library(lubridate)
 
 ```
 
 ## Data
 ```{r}
 tuesdata <- tidytuesdayR::tt_load('2025-06-24')
-x <- tuesdata$x
+
+cases_month <- tuesdata$cases_month
+cases_year <- tuesdata$cases_year
 
 ```
 
 
 ## Tidy & Explore
+
+```{r}
+cases_month |> 
+  select(country, year, month, measles_total)
+
+cases_month |> 
+  summarise(min_year = min(year), 
+            max_year = max(year))
+
+cases_month |> 
+  count(country, year)
+
+cases_month |> 
+  group_by(country) |> 
+  summarise(n = n())
+
+```
+
+```{r}
+cases_month |> 
+  filter(country %in% c("United States of America", "Canada", "Mexico")) |> 
+  mutate(date_clean = make_date(year, month)) |> 
+  ggplot(aes(x = date_clean, y = measles_total, color = country)) + 
+  geom_line() + 
+  facet_grid(~country)
+
+cases_year |> 
+  filter(country %in% c("United States of America", "Canada", "Mexico")) |> 
+  ggplot(aes(x = year, y = measles_total, color = country)) + 
+  geom_line() + 
+  facet_grid(~country)
+
+```
 
 
 ## Plot
