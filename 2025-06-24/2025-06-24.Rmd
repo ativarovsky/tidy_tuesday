@@ -63,6 +63,12 @@ cases_year |>
   geom_line() + 
   facet_grid(~country)
 
+cases_year |> 
+  filter(country %in% c("United States of America", "Canada")) |> 
+  ggplot(aes(x = year, y = measles_total, fill = country)) + 
+  geom_col() + 
+  facet_grid(~country)
+
 ```
 
 
